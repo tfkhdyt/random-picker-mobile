@@ -1,33 +1,49 @@
+const { hairlineWidth } = require('nativewind/theme');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./app/**/*.{js,ts,tsx}', './components/**/*.{js,ts,tsx}'],
-
+  darkMode: 'class',
+  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
       colors: {
-        // Semantic Colors for Gruvbox Dark Theme
-        gruvboxDark: {
-          primary: '#458588', // Blue
-          secondary: '#d79921', // Yellow
-          background: '#282828', // Background
-          foreground: '#ebdbb2', // Foreground
-          error: '#cc241d', // Red
-          success: '#98971a', // Green
-          warning: '#d65d0e', // Orange
-          info: '#689d6a', // Aqua
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
         },
-        // Semantic Colors for Gruvbox Light Theme
-        gruvboxLight: {
-          primary: '#458588', // Blue
-          secondary: '#d79921', // Yellow
-          background: '#fbf1c7', // Background
-          foreground: '#3c3836', // Foreground
-          error: '#cc241d', // Red
-          success: '#98971a', // Green
-          warning: '#d65d0e', // Orange
-          info: '#689d6a', // Aqua
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
         },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
+      },
+      borderWidth: {
+        hairline: hairlineWidth(),
       },
     },
   },

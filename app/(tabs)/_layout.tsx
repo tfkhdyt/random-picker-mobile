@@ -9,10 +9,10 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#2b7fff',
         tabBarStyle: {
           // Use explicit height instead of 'auto'
-          height: 80, // Adjust this value based on your needs
+          height: 75, // Adjust this value based on your needs
           paddingTop: 10,
         },
-        tabBarLabelStyle: { marginTop: 6, fontSize: 12, marginBottom: 10 },
+        tabBarLabelStyle: { marginTop: 2, fontSize: 11, marginBottom: 8 },
       }}>
       <Tabs.Screen
         name="index"

@@ -16,8 +16,8 @@ type Props = (
 
 export const TabBarIcon = ({ type, name, color }: Props) => {
   return type === 'antd' ? (
-    <AntDesign name={name} size={32} color={color} />
+    <AntDesign name={name} size={24} color={color} />
   ) : (
-    <MaterialIcons name={name} size={32} color={color} />
+    <MaterialIcons name={name} size={24} color={color} />
   );
 };
