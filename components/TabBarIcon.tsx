@@ -1,15 +1,23 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { StyleSheet } from 'react-native';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-export const TabBarIcon = (props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
+type Props = (
+  | {
+      type: 'antd';
+      name: keyof typeof AntDesign.glyphMap;
+    }
+  | {
+      type: 'material';
+      name: keyof typeof MaterialIcons.glyphMap;
+    }
+) & {
   color: string;
-}) => {
-  return <FontAwesome size={28} style={styles.tabBarIcon} {...props} />;
 };
 
-export const styles = StyleSheet.create({
-  tabBarIcon: {
-    marginBottom: -3,
-  },
-});
+export const TabBarIcon = ({ type, name, color }: Props) => {
+  return type === 'antd' ? (
+    <AntDesign name={name} size={32} color={color} />
+  ) : (
+    <MaterialIcons name={name} size={32} color={color} />
+  );
+};
