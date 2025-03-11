@@ -23,6 +23,17 @@ export default function Home() {
     setGroups(groups.filter((group) => group.name !== name));
   };
 
+  const onUpdate = (oldName: string, newName: string) => {
+    setGroups(
+      groups.map((group) => {
+        if (group.name === oldName) {
+          group.name = newName;
+        }
+        return group;
+      })
+    );
+  };
+
   return (
     <View className="p-6">
       <FlatList
@@ -31,7 +42,7 @@ export default function Home() {
           <Card className="w-full rounded-xl">
             <CardHeader className="w-full flex-row items-center justify-between">
               <CardTitle className="text-xl">{item.name}</CardTitle>
-              <GroupItemMenu name={item.name} onDelete={onDelete} />
+              <GroupItemMenu name={item.name} onDelete={onDelete} onUpdate={onUpdate} />
             </CardHeader>
             <CardContent className="-mt-3">
               <Text className="text-sm text-gray-500">
