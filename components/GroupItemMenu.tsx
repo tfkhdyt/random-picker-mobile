@@ -2,7 +2,6 @@ import Entypo from '@expo/vector-icons/Entypo';
 import Feather from '@expo/vector-icons/Feather';
 import { useState } from 'react';
 import { View } from 'react-native';
-import { toast } from 'sonner-native';
 
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -35,13 +34,15 @@ import {
 import { Text } from '~/components/ui/text';
 
 export default function GroupItemMenu({
+  id,
   name,
   onDelete,
   onUpdate,
 }: {
+  id: number;
   name: string;
-  onDelete: (name: string) => void;
-  onUpdate: (oldName: string, newName: string) => void;
+  onDelete: (id: number) => void;
+  onUpdate: (id: number, newName: string) => void;
 }) {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
@@ -72,6 +73,7 @@ export default function GroupItemMenu({
         onOpenChange={setOpenDeleteDialog}
         onDelete={onDelete}
         name={name}
+        id={id}
       />
 
       {/* update dialog */}
@@ -80,6 +82,7 @@ export default function GroupItemMenu({
         onUpdate={onUpdate}
         onOpenChange={setOpenUpdateDialog}
         name={name}
+        id={id}
       />
     </View>
   );
@@ -88,20 +91,21 @@ export default function GroupItemMenu({
 const UpdateDialog = ({
   open,
   onOpenChange,
+  id,
   name,
   onUpdate,
 }: {
   open: boolean;
   onOpenChange: (value: boolean) => void;
+  id: number;
   name: string;
-  onUpdate: (oldName: string, newName: string) => void;
+  onUpdate: (id: number, newName: string) => void;
 }) => {
   const [value, setValue] = useState(name);
 
   const handleSubmit = () => {
-    onUpdate(name, value);
+    onUpdate(id, value);
     onOpenChange(false);
-    toast.success('Group has been renamed');
   };
 
   return (
@@ -140,15 +144,16 @@ const DeleteDialog = ({
   onOpenChange,
   name,
   onDelete,
+  id,
 }: {
   open: boolean;
   onOpenChange: (value: boolean) => void;
   name: string;
-  onDelete: (name: string) => void;
+  id: number;
+  onDelete: (id: number) => void;
 }) => {
   const handleSubmit = () => {
-    onDelete(name);
-    toast.success('Group has been deleted');
+    onDelete(id);
   };
 
   return (

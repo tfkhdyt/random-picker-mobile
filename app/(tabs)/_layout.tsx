@@ -1,7 +1,9 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { useMutation } from '@tanstack/react-query';
 import { Tabs } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
+import { toast } from 'sonner-native';
 
 import { TabBarIcon } from '../../components/TabBarIcon';
 
@@ -18,6 +20,8 @@ import {
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Text } from '~/components/ui/text';
+import { getDbInstance } from '~/lib/db';
+import { queryClient } from '~/lib/tanstack-query';
 
 export default function TabLayout() {
   return (
@@ -59,11 +63,35 @@ export default function TabLayout() {
 
 const CreateNewGroup = () => {
   const [value, setValue] = useState('');
+  const [open, setOpen] = useState(false);
 
-  const handleSubmit = () => {};
+  const mutation = useMutation({
+    mutationFn: async ({ name }: { name: string }) => {
+      try {
+        const db = await getDbInstance();
+
+        await db.runAsync('INSERT INTO groups (name) VALUES ($name)', { $name: name });
+
+        setOpen(false);
+        toast.success('Group created successfully');
+        setValue('');
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        toast.error(msg);
+      }
+    },
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
+    },
+  });
+
+  const handleSubmit = () => {
+    mutation.mutate({ name: value });
+  };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <View className="mr-2 rounded p-2 active:bg-gray-200">
           <AntDesign name="pluscircleo" size={20} color="black" />
