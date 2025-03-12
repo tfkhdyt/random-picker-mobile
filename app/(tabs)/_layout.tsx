@@ -1,5 +1,6 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useMutation } from '@tanstack/react-query';
+import { eq } from 'drizzle-orm';
 import { Tabs } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
@@ -20,7 +21,8 @@ import {
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Text } from '~/components/ui/text';
-import { getDbInstance } from '~/lib/db';
+import { groupsTable } from '~/db/schema';
+import { db } from '~/lib/db';
 import { queryClient } from '~/lib/tanstack-query';
 
 export default function TabLayout() {
@@ -68,9 +70,15 @@ const CreateNewGroup = () => {
   const mutation = useMutation({
     mutationFn: async ({ name }: { name: string }) => {
       try {
-        const db = await getDbInstance();
+        const checkName = await db
+          .select({ id: groupsTable.id })
+          .from(groupsTable)
+          .where(eq(groupsTable.name, name));
+        if (checkName.length > 0) {
+          throw new Error('Group name already exists');
+        }
 
-        await db.runAsync('INSERT INTO groups (name) VALUES ($name)', { $name: name });
+        await db.insert(groupsTable).values({ name });
 
         setOpen(false);
         toast.success('Group created successfully');

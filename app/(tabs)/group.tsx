@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { and, eq, ne } from 'drizzle-orm';
 import { AlertTriangle } from 'lucide-react-native';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 import { toast } from 'sonner-native';
@@ -8,42 +9,12 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { Badge } from '~/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Text } from '~/components/ui/text';
-import { getDbInstance } from '~/lib/db';
+import { groupsTable } from '~/db/schema';
+import { db } from '~/lib/db';
 import { queryClient } from '~/lib/tanstack-query';
 
-type Group = {
-  id: number;
-  name: string;
-  items: Item[];
-};
-
-type Item = {
-  id: number;
-  group_id: number;
-  name: string;
-};
-
 async function getGroups() {
-  const db = await getDbInstance();
-
-  let groups: Group[] = await db.getAllAsync('SELECT * FROM groups');
-  const items: Item[] = await db.getAllAsync('SELECT * FROM items');
-
-  // Create a map where each group_id maps to an array of items
-  const itemMap = new Map<number, Item[]>();
-
-  for (const item of items) {
-    if (!itemMap.has(item.group_id)) {
-      itemMap.set(item.group_id, []);
-    }
-    itemMap.get(item.group_id)!.push(item);
-  }
-
-  // Assign items to their respective groups
-  groups = groups.map((group) => ({
-    ...group,
-    items: itemMap.get(group.id) || [],
-  }));
+  const groups = await db.query.groupsTable.findMany({ with: { items: true } });
 
   return groups;
 }
@@ -57,8 +28,7 @@ export default function Home() {
   const deleteMutation = useMutation({
     mutationFn: async ({ id }: { id: number }) => {
       try {
-        const db = await getDbInstance();
-        await db.runAsync('DELETE FROM groups WHERE id = $id', { $id: id }); // Binding named parameters from object
+        await db.delete(groupsTable).where(eq(groupsTable.id, id));
         toast.success('Group has been deleted');
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
@@ -66,7 +36,6 @@ export default function Home() {
       }
     },
     onSuccess: () => {
-      // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ['groups'] });
     },
   });
@@ -74,11 +43,16 @@ export default function Home() {
   const updateMutation = useMutation({
     mutationFn: async ({ id, newName }: { id: number; newName: string }) => {
       try {
-        const db = await getDbInstance();
-        await db.runAsync('UPDATE groups SET name = $newName WHERE id = $id', {
-          $id: id,
-          $newName: newName,
-        });
+        const checkName = await db
+          .select({ id: groupsTable.id })
+          .from(groupsTable)
+          .where(and(eq(groupsTable.name, newName), ne(groupsTable.id, id)));
+        if (checkName.length > 0) {
+          throw new Error('Group name already exists');
+        }
+
+        await db.update(groupsTable).set({ name: newName }).where(eq(groupsTable.id, id));
+
         toast.success('Group has been renamed');
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
@@ -86,7 +60,6 @@ export default function Home() {
       }
     },
     onSuccess: () => {
-      // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ['groups'] });
     },
   });
@@ -128,7 +101,7 @@ export default function Home() {
               {item.items.length > 0 && (
                 <View className="mt-4 flex-row gap-1">
                   {item.items.slice(0, 3).map((it) => (
-                    <Badge key={it.group_id} variant="secondary">
+                    <Badge key={it.id} variant="secondary">
                       <Text>{it.name}</Text>
                     </Badge>
                   ))}

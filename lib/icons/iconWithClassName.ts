@@ -12,4 +12,3 @@ export function iconWithClassName(icon: LucideIcon) {
     },
   });
 }
-
